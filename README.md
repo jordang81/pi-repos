@@ -1,11 +1,18 @@
 # pi-repos
 
-Pi extension for inspecting GitHub repositories without cloning them into the current project.
-It adds repository discovery, directory listing, file reads, glob file search, and content grep tools.
+Read GitHub repositories as if they were local in Pi.
+
+`pi-repos` gives agents a small set of repository tools for finding GitHub repos, listing files, reading code, finding files by glob, and grepping source. It uses GitHub APIs plus a local archive cache so repeated reads/searches are fast without cloning into your current project.
 
 ## Installation
 
-From GitHub after the repository is published:
+From the Pi package catalog / npm:
+
+```bash
+pi install npm:pi-repos
+```
+
+From GitHub:
 
 ```bash
 pi install git:github.com/liamvinberg/pi-repos

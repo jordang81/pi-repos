@@ -1,13 +1,17 @@
 {
   "name": "pi-repos",
   "version": "0.1.0",
-  "description": "Pi extension for browsing, reading, and searching GitHub repositories from cached archives.",
+  "description": "Read GitHub repositories as if local in Pi: find repos, list files, read code, and grep cached archives.",
   "author": "Liam Vinberg",
   "license": "MIT",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/liamvinberg/pi-repos.git"
+  },
+  "homepage": "https://github.com/liamvinberg/pi-repos#readme",
+  "bugs": {
+    "url": "https://github.com/liamvinberg/pi-repos/issues"
   },
   "keywords": [
     "pi-package",
@@ -39,6 +43,9 @@
   "peerDependenciesMeta": {
     "@earendil-works/pi-coding-agent": { "optional": true },
     "@earendil-works/pi-tui": { "optional": true }
+  },
+  "engines": {
+    "node": ">=20.6.0"
   },
   "dependencies": {
     "typebox": "^1.1.24"
