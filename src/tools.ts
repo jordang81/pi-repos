@@ -1,39 +1,29 @@
 import { createReadToolDefinition, DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, defineTool, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { DEFAULT_FIND_LIMIT, DEFAULT_GREP_LIMIT, DEFAULT_REPO_READ_LIMIT } from "./constants.ts";
+import { getRepoCommitSha, getRepoFileText, getRepoTree, githubJson, parseRepoInput, resolveRepoRef } from "./github.ts";
+import { grepRepoSnapshot, grepRepoViaGitHubRest, validateGrepPattern } from "./grep.ts";
+import { formatDirectoryListOutput, formatPathListOutput, formatReadOutput } from "./output.ts";
 import {
 	assertDirectoryPath,
 	compareCaseInsensitive,
 	createGlobMatcher,
 	encodePath,
-	formatDirectoryListOutput,
 	formatNumber,
-	formatPathListOutput,
-	formatReadOutput,
-	getCachedRepoState,
-	getRepoCommitSha,
-	getRepoFileText,
-	getRepoStateWithSnapshot,
-	getRepoTree,
-	githubJson,
-	grepRepoSnapshot,
-	grepRepoViaGitHubRest,
 	isUnderPath,
-	listRepoSnapshot,
 	normalizeRepoPath,
-	parseRepoInput,
-	prefetchRepoSnapshot,
-	refreshCachedRepoStateInBackground,
 	relativeToPath,
 	resolveGrepTarget,
-	resolveRepoRef,
 	stripUndefined,
-	validateGrepPattern,
-	type GitHubContentFile,
-	type GitHubContentObject,
-	type GitHubContentsDirectory,
-	type GitHubRepoSearchResponse,
-} from "./backend.ts";
+} from "./path-utils.ts";
+import {
+	getCachedRepoState,
+	getRepoStateWithSnapshot,
+	listRepoSnapshot,
+	prefetchRepoSnapshot,
+	refreshCachedRepoStateInBackground,
+} from "./snapshot.ts";
+import type { GitHubContentFile, GitHubContentObject, GitHubContentsDirectory, GitHubRepoSearchResponse } from "./types.ts";
 import {
 	formatCompactTextResult,
 	formatRepoFindCall,
