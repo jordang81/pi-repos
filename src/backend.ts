@@ -7,11 +7,16 @@ import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { promisify } from "node:util";
 import {
+	DEFAULT_MAX_BYTES,
+	formatSize,
+	truncateHead,
+	truncateLine,
+	type TruncationResult,
+} from "@earendil-works/pi-coding-agent";
+import {
 	DEFAULT_FIND_LIMIT,
 	DEFAULT_GREP_LIMIT,
 	DEFAULT_LIST_LIMIT,
-	DEFAULT_MAX_BYTES,
-	DEFAULT_MAX_LINES,
 	DEFAULT_REF_REFRESH_MS,
 	GITHUB_API_URL,
 	GITHUB_API_VERSION,
@@ -268,7 +273,7 @@ export function formatDirectoryListOutput(
 	if (entryLimitReached) {
 		notices.push(`${effectiveLimit} entries limit reached. Use limit=${effectiveLimit * 2} for more`);
 	}
-	const truncation = truncateHead(output, Number.MAX_SAFE_INTEGER, DEFAULT_MAX_BYTES);
+	const truncation = truncateHead(output, { maxLines: Number.MAX_SAFE_INTEGER, maxBytes: DEFAULT_MAX_BYTES });
 	output = truncation.content;
 	if (truncation.truncated) {
 		notices.push(`${formatSize(DEFAULT_MAX_BYTES)} limit reached`);
@@ -295,7 +300,7 @@ export function formatPathListOutput(
 	if (resultLimitReached) {
 		notices.push(`${effectiveLimit} results limit reached. Use limit=${effectiveLimit * 2} for more`);
 	}
-	const truncation = truncateHead(output, Number.MAX_SAFE_INTEGER, DEFAULT_MAX_BYTES);
+	const truncation = truncateHead(output, { maxLines: Number.MAX_SAFE_INTEGER, maxBytes: DEFAULT_MAX_BYTES });
 	output = truncation.content;
 	if (truncation.truncated) {
 		notices.push(`${formatSize(DEFAULT_MAX_BYTES)} limit reached`);
@@ -332,7 +337,7 @@ export async function grepRepoSnapshot(
 	if (search.matchLimitReached) {
 		notices.push(`${effectiveLimit} matches limit reached. Use limit=${effectiveLimit * 2} for more, or refine pattern`);
 	}
-	const truncation = truncateHead(output, Number.MAX_SAFE_INTEGER, DEFAULT_MAX_BYTES);
+	const truncation = truncateHead(output, { maxLines: Number.MAX_SAFE_INTEGER, maxBytes: DEFAULT_MAX_BYTES });
 	output = truncation.content;
 	if (truncation.truncated) {
 		notices.push(`${formatSize(DEFAULT_MAX_BYTES)} limit reached`);
@@ -408,7 +413,7 @@ export async function grepRepoViaGitHubRest(
 	if (matchLimitReached) {
 		notices.push(`${effectiveLimit} matches limit reached. Use limit=${effectiveLimit * 2} for more, or refine pattern`);
 	}
-	const truncation = truncateHead(output, Number.MAX_SAFE_INTEGER, DEFAULT_MAX_BYTES);
+	const truncation = truncateHead(output, { maxLines: Number.MAX_SAFE_INTEGER, maxBytes: DEFAULT_MAX_BYTES });
 	output = truncation.content;
 	if (truncation.truncated) {
 		notices.push(`${formatSize(DEFAULT_MAX_BYTES)} limit reached`);
@@ -877,44 +882,6 @@ export function compareCaseInsensitive(left: string, right: string): number {
 	return left.toLowerCase().localeCompare(right.toLowerCase());
 }
 
-export function truncateHead(content: string, maxLines = DEFAULT_MAX_LINES, maxBytes = DEFAULT_MAX_BYTES): TruncationResult {
-	const totalBytes = Buffer.byteLength(content, "utf8");
-	const lines = content.split("\n");
-	const totalLines = lines.length;
-	if (totalLines <= maxLines && totalBytes <= maxBytes) {
-		return { content, truncated: false, truncatedBy: null, totalLines, totalBytes, outputLines: totalLines, maxLines, maxBytes, firstLineExceedsLimit: false };
-	}
-	const firstLineBytes = Buffer.byteLength(lines[0] ?? "", "utf8");
-	if (firstLineBytes > maxBytes) {
-		return { content: "", truncated: true, truncatedBy: "bytes", totalLines, totalBytes, outputLines: 0, maxLines, maxBytes, firstLineExceedsLimit: true };
-	}
-	const kept: string[] = [];
-	let bytes = 0;
-	let truncatedBy: "lines" | "bytes" = "lines";
-	for (let index = 0; index < lines.length && index < maxLines; index++) {
-		const line = lines[index];
-		const lineBytes = Buffer.byteLength(line, "utf8") + (index > 0 ? 1 : 0);
-		if (bytes + lineBytes > maxBytes) {
-			truncatedBy = "bytes";
-			break;
-		}
-		kept.push(line);
-		bytes += lineBytes;
-	}
-	if (kept.length >= maxLines && bytes <= maxBytes) truncatedBy = "lines";
-	return {
-		content: kept.join("\n"),
-		truncated: true,
-		truncatedBy,
-		totalLines,
-		totalBytes,
-		outputLines: kept.length,
-		maxLines,
-		maxBytes,
-		firstLineExceedsLimit: false,
-	};
-}
-
 export function formatReadOutput(text: string, offset?: number, limit?: number): { text: string; truncation?: TruncationResult } {
 	const allLines = normalizeNewlines(text).split("\n");
 	const totalFileLines = allLines.length;
@@ -956,12 +923,6 @@ export function formatReadOutput(text: string, offset?: number, limit?: number):
 
 export function normalizeNewlines(value: string): string {
 	return value.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-}
-
-export function formatSize(bytes: number): string {
-	if (bytes < 1024) return `${bytes}B`;
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
-	return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
 export function assertDirectoryPath(tree: GitHubTreeResponse, searchPath: string): void {
@@ -1053,11 +1014,6 @@ export function createLineMatcher(pattern: string, literal: boolean, ignoreCase:
 
 export function escapeRegExp(value: string): string {
 	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-export function truncateLine(value: string): { text: string; wasTruncated: boolean } {
-	if (value.length <= GREP_MAX_LINE_LENGTH) return { text: value, wasTruncated: false };
-	return { text: `${value.slice(0, GREP_MAX_LINE_LENGTH - 1)}…`, wasTruncated: true };
 }
 
 export function looksBinary(text: string): boolean {
@@ -1187,14 +1143,3 @@ export type GitHubTreeResponse = {
 	tree: GitHubTreeEntry[];
 };
 
-export type TruncationResult = {
-	content: string;
-	truncated: boolean;
-	truncatedBy: "lines" | "bytes" | null;
-	totalLines: number;
-	totalBytes: number;
-	outputLines: number;
-	maxLines: number;
-	maxBytes: number;
-	firstLineExceedsLimit: boolean;
-};

@@ -1,14 +1,17 @@
 import {
+	DEFAULT_MAX_BYTES,
+	DEFAULT_MAX_LINES,
+	formatSize,
 	getLanguageFromPath,
 	highlightCode,
 	keyHint,
 	type AgentToolResult,
 	type Theme,
 	type ToolRenderResultOptions,
+	type TruncationResult,
 } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
-import { DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, DEFAULT_REPO_READ_LIMIT } from "./constants.ts";
-import { formatSize, type TruncationResult } from "./backend.ts";
+import { DEFAULT_REPO_READ_LIMIT } from "./constants.ts";
 
 export function renderText(lastComponent: unknown, value: string): Text {
 	const text = lastComponent instanceof Text ? lastComponent : new Text("", 0, 0);

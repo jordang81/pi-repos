@@ -1,6 +1,6 @@
-import { createReadToolDefinition, defineTool, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { createReadToolDefinition, DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, defineTool, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { DEFAULT_FIND_LIMIT, DEFAULT_GREP_LIMIT, DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, DEFAULT_REPO_READ_LIMIT } from "./constants.ts";
+import { DEFAULT_FIND_LIMIT, DEFAULT_GREP_LIMIT, DEFAULT_REPO_READ_LIMIT } from "./constants.ts";
 import {
 	assertDirectoryPath,
 	compareCaseInsensitive,
