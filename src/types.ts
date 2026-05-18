@@ -2,6 +2,13 @@ import type { TruncationResult } from "@earendil-works/pi-coding-agent";
 
 export type GitHubRepo = { owner: string; name: string };
 
+export type GitHubRepoLocator = {
+	repo: GitHubRepo;
+	ref?: string;
+	path?: string;
+	urlKind?: "blob" | "tree" | "commit";
+};
+
 export type GitHubRepoMetadata = { default_branch: string };
 
 export type GitHubCommitResponse = { sha: string };
@@ -70,6 +77,30 @@ export type GitHubRepoSearchResponse = {
 		stargazers_count: number;
 		html_url: string;
 	}>;
+};
+
+export type GitHubTextMatch = {
+	property: string;
+	fragment: string;
+	matches?: Array<{ text: string; indices: number[] }>;
+};
+
+export type GitHubCodeSearchResponse = {
+	total_count: number;
+	incomplete_results: boolean;
+	items: GitHubCodeSearchItem[];
+};
+
+export type GitHubCodeSearchItem = {
+	name: string;
+	path: string;
+	html_url: string;
+	score?: number;
+	repository: {
+		full_name: string;
+		html_url: string;
+	};
+	text_matches?: GitHubTextMatch[];
 };
 
 export type GitHubContentsEntry = {

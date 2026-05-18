@@ -1,7 +1,7 @@
 {
   "name": "pi-repos",
-  "version": "0.1.0",
-  "description": "Read GitHub repositories as if local in Pi: find repos, list files, read code, and grep cached archives.",
+  "version": "0.2.0",
+  "description": "Read and search GitHub repositories as if local in Pi: find repos, code examples, files, and grep cached archives.",
   "author": "Liam Vinberg",
   "license": "MIT",
   "type": "module",
@@ -41,8 +41,12 @@
     "@earendil-works/pi-tui": "*"
   },
   "peerDependenciesMeta": {
-    "@earendil-works/pi-coding-agent": { "optional": true },
-    "@earendil-works/pi-tui": { "optional": true }
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=20.6.0"

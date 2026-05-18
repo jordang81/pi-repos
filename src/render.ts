@@ -33,6 +33,18 @@ export function formatRepoListCall(args: { repo?: unknown; path?: unknown; ref?:
 	return text;
 }
 
+export function formatRepoCodeSearchCall(args: { query?: unknown; repo?: unknown; language?: unknown; path?: unknown; limit?: unknown }, theme: Theme): string {
+	const query = str(args?.query);
+	let text = `${theme.fg("toolTitle", theme.bold("repo_code_search"))} ${formatArg(query, theme, value => `"${value}"`)}`;
+	const repo = str(args?.repo);
+	const language = str(args?.language);
+	const path = str(args?.path);
+	const filters = [repo ? `repo:${repo}` : undefined, language ? `lang:${language}` : undefined, path ? `path:${path}` : undefined].filter(Boolean);
+	if (filters.length > 0) text += theme.fg("toolOutput", ` (${filters.join(", ")})`);
+	if (typeof args?.limit === "number") text += theme.fg("toolOutput", ` limit ${args.limit}`);
+	return text;
+}
+
 export function formatRepoReadCall(
 	args: { repo?: unknown; path?: unknown; ref?: unknown; offset?: unknown; limit?: unknown },
 	theme: Theme,

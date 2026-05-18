@@ -2,7 +2,7 @@
 
 Read GitHub repositories as if they were local in Pi.
 
-`pi-repos` gives agents a small set of repository tools for finding GitHub repos, listing files, reading code, finding files by glob, and grepping source. It uses GitHub APIs plus a local archive cache so repeated reads/searches are fast without cloning into your current project.
+`pi-repos` gives agents a small set of repository tools for finding GitHub repos, searching code examples, listing files, reading code, finding files by glob, and grepping source. It uses GitHub APIs plus a local archive cache so repeated reads/searches are fast without cloning into your current project.
 
 ## Installation
 
@@ -31,8 +31,9 @@ pi install /absolute/path/to/pi-repos
 | Tool | Purpose |
 | --- | --- |
 | `repo_find` | Search GitHub repositories by query. |
-| `repo_list` | List a directory in a remote GitHub repository. |
-| `repo_read` | Read a file from a remote repository, using cached archives when possible. |
+| `repo_code_search` | Search code across GitHub for examples, APIs, symbols, or implementation patterns. |
+| `repo_list` | List a directory in a remote GitHub repository. Accepts GitHub tree URLs. |
+| `repo_read` | Read a file from a remote repository, using cached archives when possible. Accepts GitHub blob URLs. |
 | `repo_find_files` | Find files in a remote repository by glob. |
 | `repo_grep` | Search file contents in a remote repository with archive + ripgrep acceleration when available. |
 
@@ -43,11 +44,19 @@ Find the React repository and inspect its package layout.
 ```
 
 ```text
+Find TypeScript examples of virtualized tables across open source projects.
+```
+
+```text
 Use repo_grep to search vercel/next.js for createIncrementalCache.
 ```
 
 ```text
 Read README.md from github.com/earendil-works/pi-mono.
+```
+
+```text
+Read https://github.com/owner/repo/blob/main/src/example.ts.
 ```
 
 ## Configuration
